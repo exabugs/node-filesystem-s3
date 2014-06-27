@@ -1,7 +1,7 @@
 node-filesystem-s3
 ===========
 
-Node.js connector for AWS S3.
+AWS S3 connector for Node.js.
 
 [![Build Status](https://secure.travis-ci.org/exabugs/node-wakame.png?branch=master)](http://travis-ci.org/exabugs/node-filesystem-s3)
 [![Coverage Status](https://coveralls.io/repos/exabugs/node-wakame/badge.png?branch=master)](https://coveralls.io/r/exabugs/node-filesystem-s3?branch=master)
