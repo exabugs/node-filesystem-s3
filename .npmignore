@@ -1,0 +1,6 @@
+test
+.coveralls.yml
+.gitignore
+.npmignore
+.travis.yml
+*.log
