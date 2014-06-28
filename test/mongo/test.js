@@ -55,7 +55,7 @@ describe('Mongo', function () {
 
     var s3index = new S3Index(test_backet);
 
-    s3index.insert(params0, function (err, result) {
+    s3index.upsert(params0, function (err, result) {
       s3index.findOne({_id: params0._id, fields: fields}, function (err, result) {
         result.should.eql(params0);
         done();
@@ -67,7 +67,7 @@ describe('Mongo', function () {
 
     var s3index = new S3Index(test_backet);
 
-    s3index.insert(params1, function (err, result) {
+    s3index.upsert(params1, function (err, result) {
       s3index.find({condition: {contentType: 'text/html'}, fields: fields}, function (err, result) {
         result.length.should.eql(1);
         result[0].should.eql(params1);
