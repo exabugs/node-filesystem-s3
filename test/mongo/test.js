@@ -54,7 +54,6 @@ describe('Mongo', function () {
   it('Insert.', function (done) {
 
     var s3index = new S3Index(test_backet);
-
     s3index.upsert(params0, function (err, result) {
       s3index.findOne({_id: params0._id, fields: fields}, function (err, result) {
         result.should.eql(params0);

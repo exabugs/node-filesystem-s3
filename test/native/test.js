@@ -14,7 +14,7 @@ var should = require('should');
 
 describe('Native', function () {
 
-  it('Prepare Bucket.', function (done) {
+  it('Prepare bucket.', function (done) {
 
     var finish = false;
     var s3 = new S3(test_backet);
