@@ -20,6 +20,7 @@ describe('Mongo', function () {
 
   it('Prepare.', function (done) {
     DB.initialize(function (err) {
+      DB.db().collection(test_backet).drop();
       done();
     });
   });
@@ -54,7 +55,8 @@ describe('Mongo', function () {
   it('Insert.', function (done) {
 
     var s3index = new S3Index(test_backet);
-    s3index.save(params0, function (err, result) {
+
+    s3index.update(params0, function (err, result) {
       s3index.findOne({query: {_id: params0._id}, fields: fields}, function (err, result) {
         result.should.eql(params0);
         done();
@@ -66,7 +68,7 @@ describe('Mongo', function () {
 
     var s3index = new S3Index(test_backet);
 
-    s3index.save(params1, function (err, result) {
+    s3index.update(params1, function (err, result) {
       s3index.find({query: {contentType: 'text/html'}, fields: fields}, function (err, result) {
         result.length.should.eql(1);
         result[0].should.eql(params1);
