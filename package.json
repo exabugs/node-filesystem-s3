@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/exabugs/node-filesystem-s3",
   "dependencies": {
+    "async": "^0.9.0",
     "aws-sdk": "^2.0.4",
     "moment": "^2.7.0",
     "mongodb": "^1.4.7"
