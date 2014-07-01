@@ -26,14 +26,14 @@ describe('Mongo', function () {
   });
 
   var params0 = {
-    _id: new ObjectID('539c00000000000000000000'),
+    _id: 'test0',
     filename: 'test0',
     length: 120,
     contentType: 'text/plain'
   };
 
   var params1 = {
-    _id: new ObjectID('539c00000000000000000001'),
+    _id: 'test1',
     filename: 'test1',
     length: 140,
     contentType: 'text/html'
