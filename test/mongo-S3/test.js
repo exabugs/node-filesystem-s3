@@ -7,7 +7,7 @@
 
 var test_backet = 'test_backet';
 
-var Base = require('../../lib/base').ParanoiaBase;
+var Base = require('../../lib/filesystem/s3-mongo');;
 
 var DB = require('../../lib/db');
 var fs = require('fs');
@@ -24,45 +24,42 @@ describe('Mongo', function () {
     });
   });
 
-  var params0 = {
-    _id: 'test0',
-    filename: 'test0',
-    length: 120,
-    contentType: 'text/plain'
-  };
-
-  var params1 = {
-    _id: 'test1',
-    filename: 'test1',
-    length: 140,
-    contentType: 'text/html'
-  };
-
   var fields = {
     _id: 1,
     filename: 1,
-    length: 1,
     contentType: 1
   };
 
-  /*
-   4バイトの，Unixエポックからの経過秒数(Unix時間)
-   3バイトのマシンID
-   2バイトのプロセスID
-   3バイトのカウンタ(開始番号はランダム)
-   */
   it('Insert.', function (done) {
 
     var base = new Base(test_backet);
 
-    base.update(params0, function (err, result) {
-      base.findOne({query: {_id: params0._id}, fields: fields}, function (err, result) {
-        result.should.eql(params0);
+    var filename = 'popy150.png';
+    var filepath = path.resolve(path.join('test', 'mongo-s3', filename));
+    var stream = fs.createReadStream(filepath);
+
+    var params = {
+      filename: filename,
+      body: stream,
+      contentType: 'image/png'
+    };
+
+    base.update(params, function (err, result) {
+      var _id = result._id;
+      base.findOne({query: {_id: _id}, fields: fields}, function (err, result) {
+
+        var expect = {
+          _id: result._id,
+          filename: filename,
+          contentType: 'image/png'
+        };
+
+        result.should.eql(expect);
         done();
       });
     });
   });
-
+/*
   it('List.', function (done) {
 
     var base = new Base(test_backet);
@@ -75,5 +72,5 @@ describe('Mongo', function () {
       });
     });
   });
-
+*/
 });
