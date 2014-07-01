@@ -113,9 +113,9 @@ describe('Native', function () {
    */
   it('Delete', function (done) {
     var s3 = new S3(test_backet);
-    s3.delete('0001', function () {
-      s3.delete('0002', function () {
-        s3.delete('0003', function () {
+    s3.destroy('0001', function () {
+      s3.destroy('0002', function () {
+        s3.destroy('0003', function () {
           done();
         });
       });
