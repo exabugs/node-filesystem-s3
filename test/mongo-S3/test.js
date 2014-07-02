@@ -8,7 +8,7 @@
 var test_backet = 'test_backet';
 
 var Base = require('../../lib/filesystem/s3-mongo');
-;
+
 
 var DB = require('../../lib/db');
 var fs = require('fs');
