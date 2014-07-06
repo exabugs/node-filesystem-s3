@@ -19,7 +19,7 @@ describe('Mongo', function () {
 
   it('Prepare.', function (done) {
     DB.initialize(function (err) {
-      DB.db().collection(test_backet).drop();
+      DB.collection(test_backet).drop();
       done();
     });
   });
@@ -55,7 +55,7 @@ describe('Mongo', function () {
 
     var base = new Base(test_backet);
 
-    base.update(params0, function (err, result) {
+    base.update({query: {_id: params0._id}, values: params0}, function (err, result) {
       base.findOne({query: {_id: params0._id}, fields: fields}, function (err, result) {
         result.should.eql(params0);
         done();
@@ -67,7 +67,7 @@ describe('Mongo', function () {
 
     var base = new Base(test_backet);
 
-    base.update(params1, function (err, result) {
+    base.update({query: {_id: params1._id}, values: params1}, function (err, result) {
       base.find({query: {contentType: 'text/html'}, fields: fields}, function (err, result) {
         result.length.should.eql(1);
         result[0].should.eql(params1);
