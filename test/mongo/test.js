@@ -53,7 +53,7 @@ describe('Mongo', function () {
    */
   it('Insert.', function (done) {
 
-    var base = new Base(test_backet);
+    var base = new Base(null, test_backet);
 
     base.update({query: {_id: params0._id}, values: params0}, function (err, result) {
       base.findOne({query: {_id: params0._id}, fields: fields}, function (err, result) {
@@ -65,7 +65,7 @@ describe('Mongo', function () {
 
   it('List.', function (done) {
 
-    var base = new Base(test_backet);
+    var base = new Base(null, test_backet);
 
     base.update({query: {_id: params1._id}, values: params1}, function (err, result) {
       base.find({query: {contentType: 'text/html'}, fields: fields}, function (err, result) {

@@ -31,7 +31,7 @@ describe('Mongo', function () {
    */
   it('Insert & FindOne.', function (done) {
 
-    var base = new Base(test_backet);
+    var base = new Base(null, test_backet);
 
     var filename = 'popy150.png';
     var filepath = path.resolve(path.join('test', 'mongo-s3', filename));
@@ -73,7 +73,7 @@ describe('Mongo', function () {
    */
   it('Insert & FindOne (File Load Check).', function (done) {
 
-    var base = new Base(test_backet);
+    var base = new Base(null, test_backet);
 
     var filename = 'popy150.png';
     var filepath0 = path.resolve(path.join('test', 'mongo-s3', filename));
