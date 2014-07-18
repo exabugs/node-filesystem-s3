@@ -7,7 +7,8 @@
 
 var test_backet = 'test_backet';
 
-var Base = require('../../lib/base').ParanoiaBase;
+var Base0 = require('../../lib/base').Base;
+var Base1 = require('../../lib/base').ParanoiaBase;
 
 var DB = require('../../lib/db');
 var fs = require('fs');
@@ -53,10 +54,10 @@ describe('Mongo', function () {
    */
   it('Insert.', function (done) {
 
-    var base = new Base(null, test_backet);
+    var base1 = new Base1(null, test_backet);
 
-    base.update({query: {_id: params0._id}, values: params0}, function (err, result) {
-      base.findOne({query: {_id: params0._id}, fields: fields}, function (err, result) {
+    base1.update({query: {_id: params0._id}, values: params0}, function (err, result) {
+      base1.findOne({query: {_id: params0._id}, fields: fields}, function (err, result) {
         result.should.eql(params0);
         done();
       });
@@ -65,15 +66,39 @@ describe('Mongo', function () {
 
   it('List.', function (done) {
 
-    var base = new Base(null, test_backet);
+    var base1 = new Base1(null, test_backet);
 
-    base.update({query: {_id: params1._id}, values: params1}, function (err, result) {
-      base.find({query: {contentType: 'text/html'}, fields: fields}, function (err, result) {
+    base1.update({query: {_id: params1._id}, values: params1}, function (err, result) {
+      base1.find({query: {contentType: 'text/html'}, fields: fields}, function (err, result) {
         result.length.should.eql(1);
         result[0].should.eql(params1);
         done();
       });
     });
   });
+
+  it('Delete.', function (done) {
+
+    var base0 = new Base0(null, test_backet); // 物理削除
+    var base1 = new Base1(null, test_backet); // 論理削除
+
+    base1.update({query: {_id: params0._id}, values: params0}, function (err, result) {
+      base1.delete({query: {_id: params0._id}}, function (err, result) {
+        base1.findOne({query: {_id: params0._id}, fields: fields}, function (err, result) {
+          should.equal(result, null, '論理削除されているので見つからない');
+          base0.findOne({query: {_id: params0._id}, fields: fields}, function (err, result) {
+            result.should.eql(params0, '論理削除ではないモジュールを使うと見つかる');
+            base0.destroy({query: {_id: params0._id}}, function (err, result) {
+              base0.findOne({query: {_id: params0._id}, fields: fields}, function (err, result) {
+                should.equal(result, null, '物理削除されているので見つからない');
+                done();
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+
 
 });
