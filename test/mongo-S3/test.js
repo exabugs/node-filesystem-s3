@@ -50,9 +50,11 @@ describe('Mongo', function () {
       contentType: 1
     };
 
-    base.update({values: params}, function (err, result) {
+    var context = {};
+
+    base.update(context, {values: params}, function (err, result) {
       var _id = result._id;
-      base.findOne({query: {_id: _id}, fields: get_fields}, function (err, result) {
+      base.findOne(context, {query: {_id: _id}, fields: get_fields}, function (err, result) {
 
         var expect = {
           _id: result._id,
@@ -90,9 +92,11 @@ describe('Mongo', function () {
       body: 1
     };
 
-    base.update({values: params}, function (err, result) {
+    var context = {};
+
+    base.update(context, {values: params}, function (err, result) {
       var _id = result._id;
-      base.findOne({query: {_id: _id}, fields: get_fields}, function (err, result) {
+      base.findOne(context, {query: {_id: _id}, fields: get_fields}, function (err, result) {
 
         // ストリーム処理が面倒なので一度ファイルに受ける
         var filepath1 = path.resolve(path.join('logs', filename));
