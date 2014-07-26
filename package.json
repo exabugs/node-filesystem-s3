@@ -1,6 +1,6 @@
 {
   "name": "node-filesystem-s3",
-  "version": "0.0.44",
+  "version": "0.0.45",
   "description": "FileSystem Implementation for AWS S3",
   "main": "index.js",
   "scripts": {
@@ -19,6 +19,7 @@
   "dependencies": {
     "async": "^0.9.0",
     "aws-sdk": "^2.0.4",
+    "gm": "^1.16.0",
     "mongodb": "^1.4.7",
     "underscore": "^1.6.0"
   },
