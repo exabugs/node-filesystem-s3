@@ -40,7 +40,7 @@ describe('Native', function () {
     var text = 'Hello World';
     var type = 'text/plain';
 
-    fs.write(id, text, type, function (err, data) {
+    fs.write(id, text, type, null, function (err, data) {
       fs.read(id, function (err, data) {
         var a0 = text;
         var a1 = data.Body.toString();
@@ -64,7 +64,7 @@ describe('Native', function () {
     var stream = fs.createReadStream(filepath);
     var type = 'image/png';
 
-    s3.write(id, stream, type, function (err, data) {
+    s3.write(id, stream, type, file, function (err, data) {
       s3.read(id, function (err, data) {
         var a0 = fs.readFileSync(filepath).toString('base64');
         var a1 = data.Body.toString('base64');
@@ -89,19 +89,21 @@ describe('Native', function () {
     var stream = fs.createReadStream(filepath0);
     var type = 'image/png';
 
-    s3.write(id, stream, type, function (err, data) {
+    s3.write(id, stream, type, file, function (err, data) {
 
       // ストリーム処理が面倒なので一度ファイルに受ける
       var filepath1 = path.resolve(path.join('logs', file));
       var ws = fs.createWriteStream(filepath1);
-      var rs = s3.createReadStream(id);
-      rs.pipe(ws);
+      s3.createReadStream(id, function (err, rs) {
 
-      ws.on('close', function () {
-        var a0 = fs.readFileSync(filepath0).toString('base64');
-        var a1 = fs.readFileSync(filepath1).toString('base64');
-        should.equal(a0, a1);
-        done();
+        rs.pipe(ws);
+
+        ws.on('close', function () {
+          var a0 = fs.readFileSync(filepath0).toString('base64');
+          var a1 = fs.readFileSync(filepath1).toString('base64');
+          should.equal(a0, a1);
+          done();
+        });
 
       });
 
@@ -136,7 +138,7 @@ describe('Native', function () {
     var stream = fs.createReadStream(filepath);
     var type = 'image/png';
 
-    s3.write(id, stream, type, function (err, data) {
+    s3.write(id, stream, type, file, function (err, data) {
       s3.getInfo(id, function (err, info) {
         var stat = fs.statSync(filepath);
         should(info.ContentLength, stat.size);
