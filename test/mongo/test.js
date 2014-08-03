@@ -46,6 +46,26 @@ describe('Mongo', function () {
     contentType: 1
   };
 
+  /**
+   *・instanceof 演算子
+   * instanceof 演算子は、あるオブジェクトが指定のオブジェクトか、または指定のオブジェクトから派生しているかを確認できる。
+   * 指定のオブジェクトから派生したオブジェクトであればtrue、そうでなければfalseを返す。
+   * ここで言う派生とは、プロトタイプチェーンで辿れることを意味する。
+   *
+   * ・typeof 演算子
+   * typeof 演算子は、ある値のデータ型を調べ、その文字列を返す。
+   * 返される文字列は、number, string, boolean, object, function, undefined のいずれかである。
+   *
+   */
+  it('Inherit.', function (done) {
+    var base1 = new Base1(null, test_backet);
+
+    should.equal(base1 instanceof Base0, true);
+    should.equal(base1 instanceof Base1, true);
+
+    done();
+  });
+
   /*
    4バイトの，Unixエポックからの経過秒数(Unix時間)
    3バイトのマシンID
