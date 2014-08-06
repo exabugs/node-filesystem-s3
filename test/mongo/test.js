@@ -75,7 +75,7 @@ describe('Mongo', function () {
    */
   it('Oreore ID.', function (done) {
     var base = new Base0(null, test_backet);
-    base.map("oreore_id", function(err, _id) {
+    base.map("oreore_id", function (err, _id) {
       oreore_id = _id; // 次テスト(Validation)で使用する
       done();
     });
@@ -92,10 +92,10 @@ describe('Mongo', function () {
       ['Number', '-1', -1],
       ['Number', null, null],
 
-      ['Date', '2014-08-06T02:17:07.628Z',  Date(Date.parse('2014-08-06T02:17:07.628Z'))],
-      ['Date', '2014-08-06T02:17:07Z',  Date(Date.parse('2014-08-06T02:17:07Z'))],
-      ['Date', '',  null],
-      ['Date', null,  null],
+      ['Date', '2014-08-06T02:17:07.628Z', new Date(Date.parse('2014-08-06T02:17:07.628Z'))],
+      ['Date', '2014-08-06T02:17:07Z', new Date(Date.parse('2014-08-06T02:17:07Z'))],
+      ['Date', '', null],
+      ['Date', null, null],
 
       ['Boolean', 'true', true],
       ['Boolean', 'false', false],
@@ -105,7 +105,7 @@ describe('Mongo', function () {
 
       ['ObjectID', '', null],
       ['ObjectID', null, null],
-      ['ObjectID', '53e18a1d6cf0820000aee8fc', ObjectID('53e18a1d6cf0820000aee8fc')],
+      ['ObjectID', '53e18a1d6cf0820000aee8fc', new ObjectID('53e18a1d6cf0820000aee8fc')],
       ['ObjectID', 'oreore_id', oreore_id], // オレオレIDマッピング
 
       ['String', '', ''],
@@ -113,13 +113,16 @@ describe('Mongo', function () {
     ];
 
 
-    async.eachSeries(data, function(input, next) {
+    async.eachSeries(data, function (input, next) {
       base.valid(input[1], input[0], function (err, output) {
         var data1 = output;
         var data2 = input[2];
         if (data1 instanceof ObjectID && data2 instanceof ObjectID) {
           // ObjectID は should.equal で検証できないみたい。
           should.equal(data1.equals(data2), true);
+        } else if (data1 instanceof Date && data2 instanceof Date) {
+          // Date は should.equal で検証できないみたい。
+          should.equal(data1.getTime(), data2.getTime());
         } else {
           should.equal(data1, data2);
         }
@@ -188,6 +191,43 @@ describe('Mongo', function () {
         });
       });
     });
+  });
+
+  /**
+   * find/findOne を実行しても query パラメータが変更されないこと
+   */
+  it('parameter not modified.', function (done) {
+
+    var context = {};
+
+    var base0 = new Base0(null, test_backet); // 物理削除
+    var base1 = new Base1(null, test_backet); // 論理削除
+
+    var _id = new ObjectID('53e1daf05edcb70000b162e7');
+    var param0 = {query: {_id: _id}};
+    var param1 = {query: {_id: _id}};
+
+    valid(param0, param1);
+
+    base0.findOne(context, param0, function (err, result) {
+      valid(param0, param1);
+      base1.findOne(context, param0, function (err, result) {
+        valid(param0, param1);
+        base0.find(context, param0, function (err, result) {
+          valid(param0, param1);
+          base1.find(context, param0, function (err, result) {
+            valid(param0, param1);
+            done();
+          });
+        });
+      });
+    });
+
+    function valid(a, b) {
+      var sa = JSON.stringify(a);
+      var sb = JSON.stringify(b);
+      should.equal(sa, sb);
+    }
   });
 
 
