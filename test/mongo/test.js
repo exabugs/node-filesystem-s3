@@ -115,17 +115,10 @@ describe('Mongo', function () {
 
     async.eachSeries(data, function (input, next) {
       base.valid(input[1], input[0], function (err, output) {
-        var data1 = output;
-        var data2 = input[2];
-        if (data1 instanceof ObjectID && data2 instanceof ObjectID) {
-          // ObjectID は should.equal で検証できないみたい。
-          should.equal(data1.equals(data2), true);
-        } else if (data1 instanceof Date && data2 instanceof Date) {
-          // Date は should.equal で検証できないみたい。
-          should.equal(data1.getTime(), data2.getTime());
-        } else {
-          should.equal(data1, data2);
-        }
+        // オブジェクト(Date/ObjectID)だとshould.equalできないのでJSON.stringifyして検証する
+        var data1 = JSON.stringify(output);
+        var data2 = JSON.stringify(input[2]);
+        should.equal(data1, data2);
         next();
       });
     }, function (err) {
