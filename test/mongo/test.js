@@ -14,7 +14,10 @@ var DB = require('../../lib/db');
 var fs = require('fs');
 var path = require('path');
 var should = require('should');
+var async = require('async');
 
+var mongodb = require("mongodb");
+var ObjectID = mongodb.ObjectID;
 
 describe('Mongo', function () {
 
@@ -64,6 +67,67 @@ describe('Mongo', function () {
     should.equal(base1 instanceof Base1, true);
 
     done();
+  });
+
+  var oreore_id = null;
+  /**
+   * オレオレIDマッピング
+   */
+  it('Oreore ID.', function (done) {
+    var base = new Base0(null, test_backet);
+    base.map("oreore_id", function(err, _id) {
+      oreore_id = _id; // 次テスト(Validation)で使用する
+      done();
+    });
+  });
+
+  /**
+   * Validation
+   */
+  it('Validation.', function (done) {
+    var base = new Base0(null, test_backet);
+
+    var data = [
+      ['Number', '', 0],
+      ['Number', '-1', -1],
+      ['Number', null, null],
+
+      ['Date', '2014-08-06T02:17:07.628Z',  Date(Date.parse('2014-08-06T02:17:07.628Z'))],
+      ['Date', '2014-08-06T02:17:07Z',  Date(Date.parse('2014-08-06T02:17:07Z'))],
+      ['Date', '',  null],
+      ['Date', null,  null],
+
+      ['Boolean', 'true', true],
+      ['Boolean', 'false', false],
+      ['Boolean', '', false],
+      ['Boolean', 'oops', false],
+      ['Boolean', null, null],
+
+      ['ObjectID', '', null],
+      ['ObjectID', null, null],
+      ['ObjectID', '53e18a1d6cf0820000aee8fc', ObjectID('53e18a1d6cf0820000aee8fc')],
+      ['ObjectID', 'oreore_id', oreore_id], // オレオレIDマッピング
+
+      ['String', '', ''],
+      ['String', null, null]
+    ];
+
+
+    async.eachSeries(data, function(input, next) {
+      base.valid(input[1], input[0], function (err, output) {
+        var data1 = output;
+        var data2 = input[2];
+        if (data1 instanceof ObjectID && data2 instanceof ObjectID) {
+          // ObjectID は should.equal で検証できないみたい。
+          should.equal(data1.equals(data2), true);
+        } else {
+          should.equal(data1, data2);
+        }
+        next();
+      });
+    }, function (err) {
+      done(err);
+    });
   });
 
   /*
