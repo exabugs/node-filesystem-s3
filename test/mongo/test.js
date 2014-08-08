@@ -75,7 +75,7 @@ describe('Mongo', function () {
    */
   it('Oreore ID.', function (done) {
     var base = new Base0(null, test_backet);
-    base.map("oreore_id", function (err, _id) {
+    base.map({}, "oreore_id", function (err, _id) {
       oreore_id = _id; // 次テスト(Validation)で使用する
       done();
     });
@@ -114,7 +114,7 @@ describe('Mongo', function () {
 
 
     async.eachSeries(data, function (input, next) {
-      base.valid(input[1], input[0], function (err, output) {
+      base.valid({}, input[1], input[0], function (err, output) {
         // オブジェクト(Date/ObjectID)だとshould.equalできないのでJSON.stringifyして検証する
         var data1 = JSON.stringify(output);
         var data2 = JSON.stringify(input[2]);
