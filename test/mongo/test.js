@@ -28,9 +28,24 @@ describe('Mongo', function () {
     });
   });
 
-  var params0 = {
-    _id: 'test0',
-    filename: 'test0',
+  var params00 = {
+    _id: 'test00',
+    filename: 'test00',
+    length: 120,
+    contentType: 'text/plain'
+  };
+
+  var params01 = {
+    _id: 'test00',
+    filename: 'test01',
+    length: 500,
+    contentType: 'text/xml'
+  };
+
+
+  var params02 = {
+    _id: 'test02',
+    filename: 'test02',
     length: 120,
     contentType: 'text/plain'
   };
@@ -132,15 +147,75 @@ describe('Mongo', function () {
    2バイトのプロセスID
    3バイトのカウンタ(開始番号はランダム)
    */
-  it('Insert.', function (done) {
+
+  // POST resources
+  it('Insert.1', function (done) {
 
     var context = {};
 
     var base1 = new Base1(null, test_backet);
 
-    base1.update(context, {query: {_id: params0._id}, values: params0}, function (err, result) {
-      base1.findOne(context, {query: {_id: params0._id}, fields: fields}, function (err, result) {
-        result.should.eql(params0);
+    base1.create(context, {values: params00}, function (err, result) {
+
+      // オレオレIDで検索
+      base1.findOne(context, {query: {_id: params00._id}, fields: fields}, function (err, result) {
+        result._id = params00._id;
+        result.should.eql(params00);
+        done();
+      });
+    });
+  });
+
+  // POST resources/:id
+  it('Insert.2', function (done) {
+
+    var context = {};
+
+    var base1 = new Base1(null, test_backet);
+
+    base1.create(context, {query: {_id: "Any"}, values: params00}, function (err, result) {
+
+      var createResult = {};
+      for (var key in fields) {
+        createResult[key] = result[key];
+      }
+
+      // オレオレIDで検索
+      base1.findOne(context, {query: {_id: "Any"}, fields: fields}, function (err, result) {
+        params00._id = result._id = 'Any';
+        result.should.eql(params00);
+        done();
+      });
+    });
+  });
+
+  // insert.2で追加したドキュメントをparams01で更新
+  it('Update.', function (done) {
+
+    var context = {};
+
+    var base1 = new Base1(null, test_backet);
+
+    base1.update(context, {query: {_id: params00._id}, values: params01}, function (err, result) {
+
+      base1.findOne(context, {query: {_id: params00._id}, fields: fields}, function (err, result) {
+        result._id = params01._id = params00._id;
+        result.should.eql(params01);
+        done();
+      });
+    });
+  });
+
+  it('Upsert.', function (done) {
+
+    var context = {};
+
+    var base1 = new Base1(null, test_backet);
+
+    base1.update(context, {query: {_id: params02._id}, values: params02}, function (err, result) {
+      base1.findOne(context, {query: {_id: params02._id}, fields: fields}, function (err, result) {
+        result._id = params02._id;
+        result.should.eql(params02);
         done();
       });
     });
@@ -155,6 +230,8 @@ describe('Mongo', function () {
     base1.update(context, {query: {_id: params1._id}, values: params1}, function (err, result) {
       base1.find(context, {query: {contentType: 'text/html'}, fields: fields}, function (err, result) {
         result.length.should.eql(1);
+
+        result[0]._id = params1._id;
         result[0].should.eql(params1);
         done();
       });
@@ -168,14 +245,15 @@ describe('Mongo', function () {
     var base0 = new Base0(null, test_backet); // 物理削除
     var base1 = new Base1(null, test_backet); // 論理削除
 
-    base1.update(context, {query: {_id: params0._id}, values: params0}, function (err, result) {
-      base1.delete(context, {query: {_id: params0._id}}, function (err, result) {
-        base1.findOne(context, {query: {_id: params0._id}, fields: fields}, function (err, result) {
+    base1.update(context, {query: {_id: params02._id}, values: params02}, function (err, result) {
+      base1.delete(context, {query: {_id: params02._id}}, function (err, result) {
+        base1.findOne(context, {query: {_id: params02._id}, fields: fields}, function (err, result) {
           should.equal(result, null, '論理削除されているので見つからない');
-          base0.findOne(context, {query: {_id: params0._id}, fields: fields}, function (err, result) {
-            result.should.eql(params0, '論理削除ではないモジュールを使うと見つかる');
-            base0.destroy(context, {query: {_id: params0._id}}, function (err, result) {
-              base0.findOne(context, {query: {_id: params0._id}, fields: fields}, function (err, result) {
+          base0.findOne(context, {query: {_id: params02._id}, fields: fields}, function (err, result) {
+            result._id = params02._id;
+            result.should.eql(params02, '論理削除ではないモジュールを使うと見つかる');
+            base0.destroy(context, {query: {_id: params02._id}}, function (err, result) {
+              base0.findOne(context, {query: {_id: params02._id}, fields: fields}, function (err, result) {
                 should.equal(result, null, '物理削除されているので見つからない');
                 done();
               });
