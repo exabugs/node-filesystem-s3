@@ -29,7 +29,7 @@ describe('Mongo', function () {
   });
 
   var params00 = {
-    _id: 'test00',
+    //_id: 'test00',
     filename: 'test00',
     length: 120,
     contentType: 'text/plain'
@@ -84,13 +84,16 @@ describe('Mongo', function () {
     done();
   });
 
+  //var context = {user: {_id: 'test'}};
+  var context = {};
+
   var oreore_id = null;
   /**
    * オレオレIDマッピング
    */
   it('Oreore ID.', function (done) {
     var base = new Base0(null, test_backet);
-    base.map({}, "oreore_id", function (err, _id) {
+    base.map(context, "oreore_id", function (err, _id) {
       oreore_id = _id; // 次テスト(Validation)で使用する
       done();
     });
@@ -151,83 +154,80 @@ describe('Mongo', function () {
   // POST resources
   it('Insert.1', function (done) {
 
-    var context = {};
-
     var base1 = new Base1(null, test_backet);
 
     base1.create(context, {values: params00}, function (err, result) {
 
-      // オレオレIDで検索
-      base1.findOne(context, {query: {_id: params00._id}, fields: fields}, function (err, result) {
-        result._id = params00._id;
-        result.should.eql(params00);
-        done();
-      });
+      (err === null).should.be.true;
+      done();
     });
   });
 
-  // POST resources/:id
+  // POST resources _idをvaluesに含む
   it('Insert.2', function (done) {
 
-    var context = {};
-
     var base1 = new Base1(null, test_backet);
 
-    base1.create(context, {query: {_id: "Any"}, values: params00}, function (err, result) {
+    base1.create(context, {query: {}, values: params01}, function (err, result) {
 
-      var createResult = {};
-      for (var key in fields) {
-        createResult[key] = result[key];
-      }
+      (err === null).should.be.true;
 
       // オレオレIDで検索
-      base1.findOne(context, {query: {_id: "Any"}, fields: fields}, function (err, result) {
-        params00._id = result._id = 'Any';
-        result.should.eql(params00);
-        done();
-      });
-    });
-  });
+      base1.findOne(context, {query: {_id: params01._id}, fields: fields}, function (err, result) {
 
-  // insert.2で追加したドキュメントをparams01で更新
-  it('Update.', function (done) {
+        (err === null).should.be.true;
 
-    var context = {};
-
-    var base1 = new Base1(null, test_backet);
-
-    base1.update(context, {query: {_id: params00._id}, values: params01}, function (err, result) {
-
-      base1.findOne(context, {query: {_id: params00._id}, fields: fields}, function (err, result) {
-        result._id = params01._id = params00._id;
+        result._id = params01._id;
         result.should.eql(params01);
         done();
       });
     });
   });
 
-  it('Upsert.', function (done) {
+  // POST resources _idをvaluesに含む
+  it('Insert.3 duplicate _id', function (done) {
 
-    var context = {};
+    var base1 = new Base1(null, test_backet);
+
+    base1.create(context, {query: {}, values: params01}, function (err, result) {
+
+      (err === null).should.be.false;
+      done();
+    });
+  });
+
+  // insert.2で追加したドキュメントを更新
+  it('Update.', function (done) {
+
+    var base1 = new Base1(null, test_backet);
+
+    base1.update(context, {query: {_id: params01._id}, values: {title: 'test010'}}, function (err, result) {
+
+      (err === null).should.be.true;
+      (result !== null).should.be.true;
+
+      done();
+    });
+  });
+
+  it('Update. not exist document', function (done) {
 
     var base1 = new Base1(null, test_backet);
 
     base1.update(context, {query: {_id: params02._id}, values: params02}, function (err, result) {
-      base1.findOne(context, {query: {_id: params02._id}, fields: fields}, function (err, result) {
-        result._id = params02._id;
-        result.should.eql(params02);
-        done();
-      });
+
+      (err === null).should.be.true;
+      (result === null).should.be.true;
+
+      done();
     });
   });
 
   it('List.', function (done) {
 
-    var context = {};
-
     var base1 = new Base1(null, test_backet);
 
-    base1.update(context, {query: {_id: params1._id}, values: params1}, function (err, result) {
+    base1.create(context, {query: {_id: params1._id}, values: params1}, function (err, result) {
       base1.find(context, {query: {contentType: 'text/html'}, fields: fields}, function (err, result) {
         result.length.should.eql(1);
 
@@ -240,12 +240,10 @@ describe('Mongo', function () {
 
   it('Delete.', function (done) {
 
-    var context = {};
-
     var base0 = new Base0(null, test_backet); // 物理削除
     var base1 = new Base1(null, test_backet); // 論理削除
 
-    base1.update(context, {query: {_id: params02._id}, values: params02}, function (err, result) {
+    base1.create(context, {query: {_id: params02._id}, values: params02}, function (err, result) {
       base1.delete(context, {query: {_id: params02._id}}, function (err, result) {
         base1.findOne(context, {query: {_id: params02._id}, fields: fields}, function (err, result) {
           should.equal(result, null, '論理削除されているので見つからない');
@@ -268,8 +266,6 @@ describe('Mongo', function () {
    * find/findOne を実行しても query パラメータが変更されないこと
    */
   it('parameter not modified.', function (done) {
-
-    var context = {};
 
     var base0 = new Base0(null, test_backet); // 物理削除
     var base1 = new Base1(null, test_backet); // 論理削除
