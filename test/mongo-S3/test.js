@@ -93,7 +93,7 @@ describe('Mongo', function () {
     var context = {};
 
     base.create(context, {values: params}, function (err, result) {
-      var _id = result._id;
+      var _id = params._id = result._id;
       base.findOne(context, {query: {_id: _id}, fields: get_fields}, function (err, result) {
 
         // ストリーム処理が面倒なので一度ファイルに受ける
@@ -116,12 +116,12 @@ describe('Mongo', function () {
    * 追加
    *   追加したい場合は、readstreamをbodyにセットする。
    */
-  it('Upsert & FindOne.', function (done) {
+  it('Update & FindOne.', function (done) {
 
     var base = new Base(null, test_backet);
 
-    var filename = 'popy150.png';
-    var filepath = path.resolve(path.join('test', 'mongo-s3', filename));
+    var filename = 'popy150';
+    var filepath = path.resolve(path.join('test', 'mongo-s3', filename + '.png'));
     var stream = fs.createReadStream(filepath);
 
     // 追加したい場合は、readstreamをbodyにセットする。
@@ -137,8 +137,8 @@ describe('Mongo', function () {
 
     var context = {};
 
-    base.update(context, {values: params}, function (err, result) {
-      var _id = params._id = result._id;
+    base.update(context, {query: {_id: params._id}, values: params}, function (err, result) {
+      var _id = result._id;
       base.findOne(context, {query: {_id: _id}, fields: get_fields}, function (err, result) {
 
         var expect = {
