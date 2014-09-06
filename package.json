@@ -1,6 +1,6 @@
 {
   "name": "node-filesystem-s3",
-  "version": "0.0.79",
+  "version": "0.0.80",
   "description": "FileSystem Implementation for AWS S3",
   "main": "index.js",
   "scripts": {
