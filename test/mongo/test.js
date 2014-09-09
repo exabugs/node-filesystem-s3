@@ -50,6 +50,13 @@ describe('Mongo', function () {
     contentType: 'text/plain'
   };
 
+  var params03 = {
+    _id: 'test03',
+    filename: 'test03',
+    length: 130,
+    contentType: 'text/html'
+  };
+
   var params1 = {
     _id: 'test1',
     filename: 'test1',
@@ -223,6 +230,19 @@ describe('Mongo', function () {
     });
   });
 
+  it('Update(Upsert). not exist document', function (done) {
+
+    var base1 = new Base1(null, test_backet);
+
+    base1.update(context, {query: {_id: params02._id}, values: params02, options: {upsert: true}}, function (err, result) {
+
+      (err === null).should.be.true;
+      (result === null).should.be.false;
+
+      done();
+    });
+  });
+
   it('List.', function (done) {
 
     var base1 = new Base1(null, test_backet);
@@ -243,15 +263,15 @@ describe('Mongo', function () {
     var base0 = new Base0(null, test_backet); // 物理削除
     var base1 = new Base1(null, test_backet); // 論理削除
 
-    base1.create(context, {query: {_id: params02._id}, values: params02}, function (err, result) {
-      base1.delete(context, {query: {_id: params02._id}}, function (err, result) {
-        base1.findOne(context, {query: {_id: params02._id}, fields: fields}, function (err, result) {
+    base1.create(context, {query: {_id: params03._id}, values: params03}, function (err, result) {
+      base1.delete(context, {query: {_id: params03._id}}, function (err, result) {
+        base1.findOne(context, {query: {_id: params03._id}, fields: fields}, function (err, result) {
           should.equal(result, null, '論理削除されているので見つからない');
-          base0.findOne(context, {query: {_id: params02._id}, fields: fields}, function (err, result) {
-            result._id = params02._id;
-            result.should.eql(params02, '論理削除ではないモジュールを使うと見つかる');
-            base0.destroy(context, {query: {_id: params02._id}}, function (err, result) {
-              base0.findOne(context, {query: {_id: params02._id}, fields: fields}, function (err, result) {
+          base0.findOne(context, {query: {_id: params03._id}, fields: fields}, function (err, result) {
+            result._id = params03._id;
+            result.should.eql(params03, '論理削除ではないモジュールを使うと見つかる');
+            base0.destroy(context, {query: {_id: params03._id}}, function (err, result) {
+              base0.findOne(context, {query: {_id: params03._id}, fields: fields}, function (err, result) {
                 should.equal(result, null, '物理削除されているので見つからない');
                 done();
               });
