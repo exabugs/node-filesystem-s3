@@ -50,9 +50,9 @@ function init(done) {
   done(null, modulePath, undefined);
 }
 
-describe("Start.", function () {
+var BaseContext;
 
-  var BaseContext;
+describe("Start.", function () {
 
   it('prepare', function (next) {
 
@@ -66,19 +66,19 @@ describe("Start.", function () {
     }
   );
 
-  it('case1. addDefault to empty', function (next) {
+  // paramsにsortキーが存在しない
+  it('case1. addDefault to empty object', function (next) {
 
     var params = {};
     BaseContext._addDefaultSort(params);
 
-    (isArray(params.sort)).should.be.true;
+    (BaseContext.Base.prototype.isArray(params.sort)).should.be.true;
     (params.sort.length === 1).should.be.true;
 
-    async.each(params.sort, function(sort, _next){
+    async.each(params.sort, function (sort, _next) {
 
-      (isArray(sort)).should.be.true;
-      (sort.length === 2).should.be.true;
-      (sort[0] === '_id' && sort[1] === -1).should.be.true;
+      isSortParam(sort);
+      equalSortParam(sort, BaseContext.SORT_KEY, BaseContext.SORT_ORDER);
 
       _next();
     })
@@ -86,26 +86,210 @@ describe("Start.", function () {
     next();
   })
 
-  it('case2. addDefault to exist', function (next) {
+  // paramsにsortキーが存在するが値が空配列
+  it('case2. addDefault to object(sort key and empty array)', function (next) {
 
     var params = {sort: []};
     BaseContext._addDefaultSort(params);
 
-    (isArray(params.sort)).should.be.true;
+    (BaseContext.Base.prototype.isArray(params.sort)).should.be.true;
     (params.sort.length === 1).should.be.true;
 
-    async.each(params.sort, function(sort, _next){
+    async.each(params.sort, function (sort, _next) {
 
-      (isArray(sort)).should.be.true;
-      (sort.length === 2).should.be.true;
-      (sort[0] === '_id' && sort[1] === -1).should.be.true;
+      isSortParam(sort);
+      equalSortParam(sort, BaseContext.SORT_KEY, BaseContext.SORT_ORDER);
 
+      _next();
+    })
+    next();
+  })
+
+  // paramsにsortキーが存在するが値がnull
+  it('case3. addDefault to object(sort key and null)', function (next) {
+
+    var params = {sort: null};
+    BaseContext._addDefaultSort(params);
+
+    (BaseContext.Base.prototype.isArray(params.sort)).should.be.true;
+    (params.sort.length === 1).should.be.true;
+
+    async.each(params.sort, function (sort, _next) {
+
+      isSortParam(sort);
+      equalSortParam(sort, BaseContext.SORT_KEY, BaseContext.SORT_ORDER);
+
+      _next();
+    })
+    next();
+  })
+
+  // paramsにsortキーが存在するが値がundefined
+  it('case4. addDefault to object(sort key and undefined)', function (next) {
+
+    var params = {sort: undefined};
+    BaseContext._addDefaultSort(params);
+
+    (BaseContext.Base.prototype.isArray(params.sort)).should.be.true;
+    (params.sort.length === 1).should.be.true;
+
+    async.each(params.sort, function (sort, _next) {
+
+      isSortParam(sort);
+      equalSortParam(sort, BaseContext.SORT_KEY, BaseContext.SORT_ORDER);
+
+      _next();
+    })
+    next();
+  })
+
+  // paramsにsortキーが存在するが値がundefined
+  it('case5. addDefault to object(sort key and object)', function (next) {
+
+    var params = {sort: {}};
+    BaseContext._addDefaultSort(params);
+
+    (BaseContext.Base.prototype.isArray(params.sort)).should.be.true;
+    (params.sort.length === 1).should.be.true;
+
+    async.each(params.sort, function (sort, _next) {
+
+      isSortParam(sort);
+      equalSortParam(sort, BaseContext.SORT_KEY, BaseContext.SORT_ORDER);
+
+      _next();
+    })
+    next();
+  })
+
+  // paramsにsortキーが存在するが値がundefined
+  it('case6. addDefault to object(sort key and function)', function (next) {
+
+    var params = {sort: function () {
+    }};
+    BaseContext._addDefaultSort(params);
+
+    (BaseContext.Base.prototype.isArray(params.sort)).should.be.true;
+    (params.sort.length === 1).should.be.true;
+
+    async.each(params.sort, function (sort, _next) {
+
+      isSortParam(sort);
+      equalSortParam(sort, BaseContext.SORT_KEY, BaseContext.SORT_ORDER);
+      _next();
+    })
+    next();
+  })
+
+  // paramsにsortキーが存在するが値がundefined
+  it('case7. addDefault to object(sort key and sortParam)', function (next) {
+
+    var sortKey = 'aaa'
+      , sortOrder = 1;
+
+    var params = {sort: [
+      [sortKey, sortOrder]
+    ]};
+    BaseContext._addDefaultSort(params);
+
+    (BaseContext.Base.prototype.isArray(params.sort)).should.be.true;
+    (params.sort.length === 2).should.be.true;
+
+    var i = 0;
+    var length = params.sort.length;
+    async.each(params.sort, function (sort, _next) {
+
+      i++;
+      isSortParam(sort);
+
+      if (i < length) {
+
+        equalSortParam(sort, sortKey, sortOrder);
+
+      } else {
+
+        // default check
+        equalSortParam(sort, BaseContext.SORT_KEY, BaseContext.SORT_ORDER);
+      }
+      _next();
+    })
+    next();
+  })
+
+  // paramsにsortキー、sortParamが存在しかつデフォルトソート(デフォルトソートは重複しない）
+  it('case8. addDefault to object(sort key and defaultSort)', function (next) {
+
+    var sortKey = BaseContext.SORT_KEY
+      , sortOrder = BaseContext.SORT_ORDER;
+
+    var params = {sort: [
+      [sortKey, sortOrder]
+    ]};
+    BaseContext._addDefaultSort(params);
+
+    (BaseContext.Base.prototype.isArray(params.sort)).should.be.true;
+    (params.sort.length === 1).should.be.true;
+
+    async.each(params.sort, function (sort, _next) {
+
+      isSortParam(sort);
+      equalSortParam(sort, BaseContext.SORT_KEY, BaseContext.SORT_ORDER);
+      _next();
+    })
+    next();
+  })
+
+  // paramsにsortキー、sortParamがArrayじゃない
+  it('case9. addDefault to object(sort key and invalid SortParam: empty Object)', function (next) {
+
+    var params = {sort: [
+      {}
+    ]};
+    BaseContext._addDefaultSort(params);
+
+    (BaseContext.Base.prototype.isArray(params.sort)).should.be.true;
+    (params.sort.length === 1).should.be.true;
+
+    async.each(params.sort, function (sort, _next) {
+
+      isSortParam(sort);
+      equalSortParam(sort, BaseContext.SORT_KEY, BaseContext.SORT_ORDER);
+      _next();
+    })
+    next();
+  })
+
+  // paramsにsortキー、sortParamのArray.lengthが > 2
+  it('case10. addDefault to object(sort key and invalid SortParam: Array size)', function (next) {
+
+    var params = {sort: [
+      [1,2,3]
+    ]};
+    BaseContext._addDefaultSort(params);
+
+    (BaseContext.Base.prototype.isArray(params.sort)).should.be.true;
+    (params.sort.length === 1).should.be.true;
+
+    async.each(params.sort, function (sort, _next) {
+
+      isSortParam(sort);
+      equalSortParam(sort, BaseContext.SORT_KEY, BaseContext.SORT_ORDER);
       _next();
     })
     next();
   })
 });
 
-function isArray(o) {
-  return Object.prototype.toString.call(o) === '[object Array]';
+/*
+SortParam is must be type Array and length == 2
+ */
+function isSortParam(sort) {
+
+  (BaseContext.Base.prototype.isArray(sort)).should.be.true;
+  (sort.length === 2).should.be.true;
+}
+
+function equalSortParam(sort, expectKey, expectOrder) {
+
+  (sort[0] === expectKey && sort[1] === expectOrder).should.be.true;
 }
